@@ -1,0 +1,117 @@
+d69_ubvcalib.txt
+The following calibration format can be used directly in
+IRAF.digiphot.photcal.invertfit. The instrumental magnitudes
+mU, mB, and mV are -2.5*log(counts/s)+25.
+
+For the these images, the average parameters for UBV are the following:
+Airmass---1.22, 1.04, 1.1
+Integration time (s)---1800, 2400, 1200
+Pixel scale (arcsec)---1.134, 1.134, 1.134
+
+# Thu 17:22:21 30-May-2002
+begin BFIT
+status 0 (Solution converged)
+variance 2.919443E-4
+stdeviation 0.01708638
+avsqerror 2.934487E-4
+averror 0.01713034
+avsqscatter 9.893559E-5
+avscatter 0.009946637
+chisqr 0.9948735
+msq 2.822128E-4
+rms 0.01679919
+reference m1
+fitting (BV+V)+b1+b2*X1+b3*BV+b4*BV*X1
+weights photometric
+parameters 4
+b1 (constant)
+b2 (fit)
+b3 (constant)
+b4 (constant)
+derivatives 4
+0.1
+0.1
+0.1
+0.1
+values 4
+3.434
+0.3398903
+-0.0157
+0.
+errors 4
+0.
+0.002096669
+0.
+0.
+
+# Thu 17:23:06 30-May-2002
+begin VFIT
+status 0 (Solution converged)
+variance 3.533681E-4
+stdeviation 0.01879809
+avsqerror 3.510584E-4
+averror 0.01873655
+avsqscatter 1.724228E-4
+avscatter 0.01313099
+chisqr 1.006579
+msq 3.402804E-4
+rms 0.01844669
+reference m2
+fitting V+v1+v2*X2+v3*BV+v4*BV*X2
+weights photometric
+parameters 4
+v1 (constant)
+v2 (fit)
+v3 (constant)
+v4 (constant)
+derivatives 4
+0.1
+0.1
+0.1
+0.1
+values 4
+3.009
+0.2183592
+0.0415
+0.
+errors 4
+0.
+0.002304921
+0.
+0.
+
+# Thu 11:50:02 11-Jul-2002
+begin UFIT
+status 0 (Solution converged)
+variance 0.004286912
+stdeviation 0.06547451
+avsqerror 0.004285706
+averror 0.06546531
+avsqscatter 0.003317559
+avscatter 0.05759826
+chisqr 1.000281
+msq 0.004224783
+rms 0.06499833
+reference mU
+fitting (UB+BV+V)+u1+u2*XU+u3*BV+u4*UB*XU
+weights photometric
+parameters 4
+u1 (fit)
+u2 (constant)
+u3 (constant)
+u4 (constant)
+derivatives 4
+0.1
+0.1
+0.1
+0.1
+values 4
+5.251
+0.459
+-0.121
+0.
+errors 4
+0.003
+0.
+0.
+0. 
