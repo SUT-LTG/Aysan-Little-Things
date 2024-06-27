@@ -59,7 +59,7 @@ def log_scale_plot_2_images(image_data_1, image_data_2, image_1_title, image_2_t
 def align(images, source_indices , target_indice):
     target_fixed = images[target_indice].byteswap().newbyteorder('N')
     source_fixed_1 = images[source_indices[0]].byteswap().newbyteorder('N')
-    source_fixed_2 = images[source_indices[0]].byteswap().newbyteorder('N')
+    source_fixed_2 = images[source_indices[1]].byteswap().newbyteorder('N')
     registered_image_1, footprint_1 = aa.register(source_fixed_1, target_fixed)
     registered_image_2,  footprint_2 = aa.register(source_fixed_2, target_fixed)
     list_of_aligned_images = [registered_image_1, registered_image_2, images[source_indices[2]]]
