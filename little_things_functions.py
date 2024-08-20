@@ -142,6 +142,14 @@ def contour_lines_coordinates(box,sigma,level):
         x_coord = dat0[:, 0]
         y_coord = dat0[:, 1]
         return x_coord,y_coord
+def contour_lines(box,sigma,level):
+    #smoothing (gaussian convolution)
+        smoothed = gaussian_filter(box, sigma)
+        # Draw contour lines
+        # Plot the smoothed array
+        plt.imshow(smoothed, alpha = 0.75 , origin = "lower")
+        # Add contour line on top of the smoothed array
+        CS = plt.contour(smoothed, level)
 
 def ellipse(x, xc, yc, a, b, theta):
     return ((x[0] - xc) * np.cos(theta) + (x[1] - yc) * np.sin(theta))**2 / a**2 + ((x[0] - xc) * np.sin(theta) - (x[1] - yc) * np.cos(theta))**2 / b**2 - 1
