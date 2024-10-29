@@ -120,8 +120,8 @@ def mag_table_correction(images, airmass_values, m_values,pixel_scale, exposures
     for i in range(0,len(magnitude_tables)):
         s1 = m_values[i][0]
         s2 = airmass_values[1]*m_values[i][1]
-        s3=m_values[i][2]*(magnitude_tables[1] - magnitude_tables[2])
-        s4=airmass_values[1]*m_values[i][3]*(magnitude_tables[1] - magnitude_tables[2])
+        s3 = m_values[i][2]*(magnitude_tables[1] - magnitude_tables[2])
+        s4 = airmass_values[1]*m_values[i][3]*(magnitude_tables[1] - magnitude_tables[2])
         corrected_magnitude_table = magnitude_tables[i] - s1 - s2 - s3 - s4
         corrected_magnitude_tables.append(corrected_magnitude_table)
       
@@ -197,3 +197,7 @@ def find_ellipse(image_box, center_of_mass_x, center_of_mass_y, x_points, y_poin
     plt.show()
 
 
+def correct_reddening_B(image, E_B_V):
+    A_B = (1+3.086)*E_B_V
+    reddening_corrected_image = image + A_B
+    return reddening_corrected_image
