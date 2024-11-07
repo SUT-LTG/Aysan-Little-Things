@@ -12,6 +12,7 @@ from scipy import ndimage
 from scipy.ndimage import gaussian_filter
 import cv2
 import astroalign as aa
+from skimage.transform import AffineTransform, warp
 
 def open_fits(path):
     fitsfile = fits.open(path)
@@ -201,3 +202,117 @@ def correct_reddening_B(image, E_B_V):
     A_B = (1+3.086)*E_B_V
     reddening_corrected_image = image + A_B
     return reddening_corrected_image
+
+
+import os
+import numpy as np
+from astropy.io import fits
+from skimage.transform import AffineTransform, warp
+import matplotlib.pyplot as plt
+from astropy.visualization.mpl_normalize import ImageNormalize
+from astropy.visualization import LogStretch
+from scipy.ndimage import gaussian_filter
+from matplotlib.colors import Normalize
+import matplotlib.cm as cm
+
+def V_and_Halpha_alignment(galaxy_name, image1_path, image2_path, star_coords_V, star_coords_H, output_dir, alpha1=0.5, alpha2=0.5):
+    norm = ImageNormalize(vmin=0., stretch=LogStretch())
+
+    # Ensure the output directory exists
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Function to open FITS file and handle endian issues
+    def open_fits_file(file_path):
+        with fits.open(file_path) as hdul:
+            data = hdul[0].data
+            if data.dtype.byteorder == '>':
+                data = data.byteswap().newbyteorder()
+            header = hdul[0].header
+        return data, header
+
+    # Open FITS files and get data
+    V_image, header1 = open_fits_file(image1_path)
+    H_image, header2 = open_fits_file(image2_path)
+
+    # Calculate the affine transformation matrix using the star coordinates
+    tform = AffineTransform()
+    tform.estimate(star_coords_H, star_coords_V)
+
+    # Apply the affine transformation to the H_image
+    aligned_H_image = warp(H_image, inverse_map=tform.inverse, output_shape=V_image.shape)
+
+    # Save the aligned image to a new FITS file
+    aligned_H_image_path = os.path.join(output_dir, 'aligned_d101ha.fits')
+    fits.writeto(aligned_H_image_path, aligned_H_image.astype(np.float32), header2, overwrite=True)
+
+    # Create a mask for the overlapping region
+    overlap_mask = (aligned_H_image > 0) & (V_image > 0)
+
+    # Find the bounding box of the overlapping region
+    coords = np.argwhere(overlap_mask)
+    x_min, y_min = coords.min(axis=0)
+    x_max, y_max = coords.max(axis=0)
+
+    # Crop the images to the bounding box
+    aligned_H_image_cropped = aligned_H_image[x_min:x_max+1, y_min:y_max+1]
+    V_image_cropped = V_image[x_min:x_max+1, y_min:y_max+1]
+
+    # Update the headers to comply with FITS standard
+    header1['OBSERVAT'] = 'Observatory 1'
+    header2['OBSERVAT'] = 'Observatory 2'
+
+    # Save the cropped images as new FITS files
+    V_image_cropped_path = os.path.join(output_dir, f'cropped_{galaxy_name}_V.fits')
+    aligned_H_image_cropped_path = os.path.join(output_dir, f'cropped_{galaxy_name}_H.fits')
+    fits.writeto(V_image_cropped_path, V_image_cropped.astype(np.float32), header1, overwrite=True)
+    fits.writeto(aligned_H_image_cropped_path, aligned_H_image_cropped.astype(np.float32), header2, overwrite=True)
+
+    # Plot the cropped images on top of each other
+    fig, ax = plt.subplots(figsize=(10, 10))
+    ax.imshow(V_image_cropped, cmap='Blues', alpha=alpha1, norm=norm, origin="lower")
+    ax.imshow(aligned_H_image_cropped, cmap='Reds', alpha=alpha2, norm=norm, origin="lower")
+
+    plt.title(f"Overlay and Contour lines for {galaxy_name}")
+    plt.xlabel('X Coordinate')
+    plt.ylabel('Y Coordinate')
+    plt.legend([f"{galaxy_name} V filter", f'{galaxy_name} H-alpha filter'])
+    plt.show()
+    return V_image_cropped, aligned_H_image_cropped
+
+def plot_contours_V_and_Halpha(galaxy_name, V_image, H_image, alpha1=0.5, alpha2=0.5, sigma=5, contour_levels=[2, 3, 4, 5, 6]):
+    norm = ImageNormalize(vmin=0., stretch=LogStretch())
+
+    # Plot the cropped images on top of each other
+    fig, ax = plt.subplots(figsize=(10, 10))
+    im1 = ax.imshow(V_image, cmap='Blues', alpha=alpha1, norm=norm, origin="lower")
+    im2 = ax.imshow(H_image, cmap='Reds', alpha=alpha2, norm=norm, origin="lower")
+
+    # Create the Gaussian smoothed image for contours
+    smoothed = gaussian_filter(H_image, sigma=sigma)
+
+    # Add contours of the smoothed image
+    CS = ax.contour(smoothed, contour_levels, cmap='inferno', linewidths=1)
+
+    # Create a custom color bar for the contour lines
+    norm = Normalize(vmin=min(contour_levels), vmax=max(contour_levels))
+    sm = cm.ScalarMappable(cmap='inferno', norm=norm)
+    sm.set_array([])
+
+    # Add the color bar with labels
+    cbar_contour = fig.colorbar(sm, ax=ax, ticks=contour_levels, fraction=0.046, pad=0.04)
+    cbar_contour.ax.set_yticklabels([str(level) for level in contour_levels])
+    cbar_contour.set_label('Contour Levels', labelpad=-30)
+
+    # Add colorbars for the images
+    cbar1 = fig.colorbar(im1, ax=ax, fraction=0.046, pad=0.06)
+    cbar2 = fig.colorbar(im2, ax=ax, fraction=0.046, pad=0.04)
+    cbar1.set_label("V filter", labelpad=-45)
+    cbar2.set_label("H-alpha filter", labelpad=-45)
+
+    plt.title(f"{galaxy_name} H alpha contour lines on V filter, sigma used for smoothing the contours is {sigma}")
+    plt.xlabel('X Coordinate')
+    plt.ylabel('Y Coordinate')
+    plt.legend([f"{galaxy_name} V filter", f'{galaxy_name} H-alpha filter'])
+    plt.show()
+
