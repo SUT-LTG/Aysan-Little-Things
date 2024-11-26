@@ -108,11 +108,15 @@ def get_boxes(images,center,box_size):
 #example:
 #galaxy_box = ltf.get_boxes(starless,[500,450],400)
 
-def mag_table_correction(images, airmass_values, m_values,pixel_scale, exposures):
+def mag_table_correction(images, airmass_values, m_values,pixel_scale, exposures, sigma):
     #first step of mag correction (turning each pixel into a magnitude/arcsec value)
+    smoothed = []
+    for i in range(0,len(images)):
+        smoothed_im = gaussian_filter(images[1], sigma)
+        smoothed.append(smoothed_im)
     magnitude_tables=[]
     for i in range(0,len(images)): 
-        image = images[i]
+        image = smoothed[i]
         flux = (image/(exposures[i]*((pixel_scale)**2)))
         magnitude_table = (-2.5 * np.log10(flux) + 25) 
         magnitude_tables.append(magnitude_table)
@@ -131,14 +135,12 @@ def mag_table_correction(images, airmass_values, m_values,pixel_scale, exposures
 #example:
 #ltf.mag_table_correction(starless,airmass_values,m_values,pixel_scale)
 
-def contour_lines_coordinates(box,sigma,level):
-    #smoothing (gaussian convolution)
-        smoothed = gaussian_filter(box, sigma)
+def contour_lines_coordinates(box,level):
         # Draw contour lines
         # Plot the smoothed array
-        plt.imshow(smoothed, alpha = 0.75 , origin = "lower")
+        plt.imshow(box, alpha = 0.75 , origin = "lower")
         # Add contour line on top of the smoothed array
-        CS = plt.contour(smoothed, level)
+        CS = plt.contour(box, level)
         dat0 = CS.allsegs[0][0]
         x_coord = dat0[:, 0]
         y_coord = dat0[:, 1]
@@ -280,19 +282,25 @@ def V_and_Halpha_alignment(galaxy_name, image1_path, image2_path, star_coords_V,
     plt.show()
     return V_image_cropped, aligned_H_image_cropped
 
-def plot_contours_V_and_Halpha(galaxy_name, V_image, H_image, alpha1=0.5, alpha2=0.5, sigma=5, contour_levels=[2, 3, 4, 5, 6]):
+import matplotlib.pyplot as plt
+import numpy as np
+from astropy.visualization import ImageNormalize, LogStretch
+from scipy.ndimage import gaussian_filter
+from matplotlib.colors import Normalize
+import matplotlib.cm as cm
+
+def plot_contours_V_and_Halpha(galaxy_name, V_image, H_image, folder_path, alpha=1, sigma=5, contour_levels=[2, 3, 4, 5, 6]):
     norm = ImageNormalize(vmin=0., stretch=LogStretch())
 
-    # Plot the cropped images on top of each other
+    # Plot the V filter image
     fig, ax = plt.subplots(figsize=(10, 10))
-    im1 = ax.imshow(V_image, cmap='Blues', alpha=alpha1, norm=norm, origin="lower")
-    im2 = ax.imshow(H_image, cmap='Reds', alpha=alpha2, norm=norm, origin="lower")
+    im1 = ax.imshow(V_image, cmap='Blues', alpha=alpha, norm=norm, origin="lower")
 
     # Create the Gaussian smoothed image for contours
     smoothed = gaussian_filter(H_image, sigma=sigma)
 
     # Add contours of the smoothed image
-    CS = ax.contour(smoothed, contour_levels, cmap='inferno', linewidths=1)
+    CS = ax.contour(smoothed, levels=contour_levels, cmap='inferno', linewidths=1)
 
     # Create a custom color bar for the contour lines
     norm = Normalize(vmin=min(contour_levels), vmax=max(contour_levels))
@@ -304,15 +312,42 @@ def plot_contours_V_and_Halpha(galaxy_name, V_image, H_image, alpha1=0.5, alpha2
     cbar_contour.ax.set_yticklabels([str(level) for level in contour_levels])
     cbar_contour.set_label('Contour Levels', labelpad=-30)
 
-    # Add colorbars for the images
+    # Add colorbar for the V filter image
     cbar1 = fig.colorbar(im1, ax=ax, fraction=0.046, pad=0.06)
-    cbar2 = fig.colorbar(im2, ax=ax, fraction=0.046, pad=0.04)
     cbar1.set_label("V filter", labelpad=-45)
-    cbar2.set_label("H-alpha filter", labelpad=-45)
 
     plt.title(f"{galaxy_name} H alpha contour lines on V filter, sigma used for smoothing the contours is {sigma}")
     plt.xlabel('X Coordinate')
     plt.ylabel('Y Coordinate')
-    plt.legend([f"{galaxy_name} V filter", f'{galaxy_name} H-alpha filter'])
+
+    # Save the figure to the specified path
+    output_path = f"{folder_path}\\{galaxy_name} H-alpha regions.png"
+    plt.savefig(output_path)
+
     plt.show()
 
+
+    
+def calculate_pixelscale(star_coords_V, star_coords_H, V_pixelscale):
+    def euclidean_distance(point1, point2):
+        return np.linalg.norm(point1 - point2)
+
+    # Calculate distances between stars in vertical setting
+    dist_V_1_2 = euclidean_distance(star_coords_V[0], star_coords_V[1])
+    dist_V_2_3 = euclidean_distance(star_coords_V[1], star_coords_V[2])
+    dist_V_1_3 = euclidean_distance(star_coords_V[0], star_coords_V[2])
+    
+    # Calculate distances between stars in horizontal setting
+    dist_H_1_2 = euclidean_distance(star_coords_H[0], star_coords_H[1])
+    dist_H_2_3 = euclidean_distance(star_coords_H[1], star_coords_H[2])
+    dist_H_1_3 = euclidean_distance(star_coords_H[0], star_coords_H[2])
+    
+    # Calculate ratios
+    ratio_1_2 = dist_H_1_2/dist_V_1_2 
+    ratio_2_3 = dist_H_2_3/dist_V_2_3
+    ratio_1_3 = dist_H_1_3/dist_V_1_3
+    
+    # Calculate mean ratio
+    mean_ratio = np.mean([ratio_1_2, ratio_2_3, ratio_1_3])
+    
+    return mean_ratio*V_pixelscale
