@@ -300,11 +300,11 @@ def plot_contours_V_and_Halpha(galaxy_name, V_image, H_image, folder_path, alpha
     smoothed = gaussian_filter(H_image, sigma=sigma)
 
     # Add contours of the smoothed image
-    CS = ax.contour(smoothed, levels=contour_levels, cmap='inferno', linewidths=1)
+    CS = ax.contour(smoothed, levels=contour_levels, cmap='Dark2', linewidths=1)
 
     # Create a custom color bar for the contour lines
     norm = Normalize(vmin=min(contour_levels), vmax=max(contour_levels))
-    sm = cm.ScalarMappable(cmap='inferno', norm=norm)
+    sm = cm.ScalarMappable(cmap='Dark2', norm=norm)
     sm.set_array([])
 
     # Add the color bar with labels

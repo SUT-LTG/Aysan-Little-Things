@@ -58,7 +58,7 @@ print("Integration Time Values:", integration_time_values)
 print("mU Values:", mU_values)
 print("mB Values:", mB_values)
 print("mV Values:", mV_values)
-'''
+
 #####################
 
 img_U = glob2.glob('*_U_1.fit')
@@ -108,7 +108,7 @@ for i in range (lenxU):
         inst_mag_corrected_U[i][j]=inst_magU0[i][j]-u1-u2
        
 
-plt.imshow(inst_mag_corrected_V, origin='lower')
+plt.imshow(inst_mag, origin='lower')
 plt.colorbar()
 plt.show()
 
@@ -127,7 +127,8 @@ hdu = fits.PrimaryHDU(inst_mag_corrected_V)
 #hdu.header['OBJECT']='inst_mag'
 #hdu.header['DATE']='2023-05-25'
 hdu.writeto('inst_mag_V.fits',overwrite=True)
-'''
+
+
 
 
 
