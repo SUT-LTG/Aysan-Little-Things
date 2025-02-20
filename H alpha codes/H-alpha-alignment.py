@@ -299,18 +299,18 @@ def V_and_Halpha_alignment(
 # Main code
 if __name__ == "__main__":
     # Load the data
-    galaxy_name = "DDO 47"
+    galaxy_name = "WLM"
 
     # Paths to the images
-    V_image_path_star = r"C:\Users\AYSAN\Desktop\project\Galaxy\Data\DDO 47\d47v.fits"
-    H_image_path_star = r"C:\Users\AYSAN\Desktop\project\Galaxy\Data\DDO 47\d47ha.fits"
-    output_dir_no_stars = r"C:\Users\AYSAN\Desktop\project\Galaxy\Code\d47"
-    output_dir_stars = r"C:\Users\AYSAN\Desktop\project\Galaxy\Code\d47\withstar"
-    folder_path = r"C:\Users\AYSAN\Desktop\project\Galaxy\H-alpha regions"
+    V_image_path_star = r"C:\Users\AYSAN\Desktop\project\Galaxy\Data\WLM\wlmv.fits" #location to the V-filter image (with stars)
+    H_image_path_star = r"C:\Users\AYSAN\Desktop\project\Galaxy\Data\WLM\wlmha.fits"#location to the H-alpha-filter image (with stars)
 
+    output_dir_no_stars = r"C:\Users\AYSAN\Desktop\project\Galaxy\Code\WLM" #location to where your starless cropped and resized images are saved.
+    output_dir_stars = r"C:\Users\AYSAN\Desktop\project\Galaxy\Code\WLM\withstar"#location to where your cropped and resized images are saved (withstars).
+    folder_path = r"C:\Users\AYSAN\Desktop\project\Galaxy\H-alpha regions"#location to where the final plots are saved.
     # Paths to the starless images
-    V_image_path_starless = r"C:\Users\AYSAN\Desktop\project\Galaxy\Starless images\DDO 47\final_d47v.fits"
-    H_image_path_starless = r"C:\Users\AYSAN\Desktop\project\Galaxy\Data\DDO 47\d47hmrms.fits"
+    V_image_path_starless = r"C:\Users\AYSAN\Desktop\project\Galaxy\Starless images\WLM\final_wLMv.fits"#location to the starless V-filter image
+    H_image_path_starless = r"C:\Users\AYSAN\Desktop\project\Galaxy\Data\WLM\wlmhmrms.fits"#location to the starless H-alpha-filter image
 
     # Load H-alpha image and plot in log scale
     DDO168_H = ltf.open_fits(H_image_path_star)
@@ -343,9 +343,8 @@ if __name__ == "__main__":
         galaxy_name,
         V_image_cropped,
         H_image_cropped,
-        r"C:\Users\AYSAN\Desktop\project\Galaxy\H-alpha regions"
-    )
+        r"C:\Users\AYSAN\Desktop\project\Galaxy\H-alpha regions", contour_levels=[4,6,8,10])
 
-    H_pixelscale = ltf.calculate_pixelscale(star_coords_V, star_coords_H, 1.134)
+    H_pixelscale = ltf.calculate_pixelscale(star_coords_V, star_coords_H, 1.134) #enter V-filter pixel scale. 
     print("H-alpha pixelscale:", H_pixelscale)
 
