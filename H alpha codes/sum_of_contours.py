@@ -12,6 +12,12 @@ from shapely.ops import unary_union
 from shapely.prepared import prep
 import os
 
+folder_path = r"C:\Users\AYSAN\Desktop\project\Trash"
+
+# Import tkinter modules for file dialog
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename, askdirectory
+
 def enhance_contrast(image, stretch=AsinhStretch(), interval=PercentileInterval(99.5)):
     """Enhance the contrast of an image using stretching and interval scaling."""
     norm = ImageNormalize(image, interval=interval, stretch=stretch)
@@ -98,19 +104,7 @@ def plot_contours_V_and_Halpha(
         masks_per_contour[i] = mask.copy()
 
         # Sum the pixel values inside the mask
-
-
-
-
-
-        pixel_values = V_image[mask]  #?? ror H_alpha_image[mask]
-
-
-
-
-
-
-
+        pixel_values = H_image[mask]
         pixel_sum = pixel_values.sum()
         num_pixels = mask.sum()
         mean_pixel_value = pixel_values.mean() if num_pixels > 0 else 0
@@ -135,10 +129,9 @@ def plot_contours_V_and_Halpha(
         plt.xlabel('X Coordinate (pixels)')
         plt.ylabel('Y Coordinate (pixels)')
         # Save the mask figure
-        mask_fig_path = os.path.join(folder_path, f"{galaxy_name}_mask_level_{level}.png")
+        mask_fig_path = os.path.join(folder_path, f"{galaxy_name}_contour_level_{level}.png")
         plt.savefig(mask_fig_path, bbox_inches='tight', dpi=300)
         plt.close()
- 
 
     # Create a custom color bar for contours
     cmap = ListedColormap(contour_colors)
@@ -160,7 +153,7 @@ def plot_contours_V_and_Halpha(
     ax.set_ylabel('Y Coordinate (pixels)', fontsize=12)
 
     # Save the figure to the specified path
-    output_path = os.path.join(folder_path, f"{galaxy_name} H-alpha regions.png")
+    output_path = os.path.join(folder_path, f"{galaxy_name}_H-alpha_regions.png")
     plt.savefig(output_path, bbox_inches='tight', dpi=300)
     plt.close()  # Close the figure
 
@@ -175,9 +168,27 @@ def open_fits(file_path):
 
 # Main script
 if __name__ == "__main__":
-    galaxy_name = "DDO 43"
-    H_alpha_path = r"C:\Users\AYSAN\Desktop\project\Galaxy\Code\d43\cropped_DDO 43_H.fits"
-    V_path = r"C:\Users\AYSAN\Desktop\project\Galaxy\Code\d43\cropped_DDO 43_V.fits"
+    # Create a Tkinter root window and hide it
+    root = Tk()
+    root.withdraw()
+
+    # Prompt the user to select the V-band FITS file
+    print("Please select the V-band FITS file.")
+    V_path = askopenfilename(title="Select V-band FITS file", filetypes=[("FITS files", "*.fits")])
+    if not V_path:
+        print("No V-band file selected. Exiting.")
+        exit()
+
+    # Prompt the user to select the H-alpha FITS file
+    print("Please select the H-alpha FITS file.")
+    H_alpha_path = askopenfilename(title="Select H-alpha FITS file", filetypes=[("FITS files", "*.fits")])
+    if not H_alpha_path:
+        print("No H-alpha file selected. Exiting.")
+        exit()
+
+    # Prompt the user to input the galaxy name
+    galaxy_name = input("Enter the galaxy name: ")
+
 
     # Load images
     V_image = open_fits(V_path)
@@ -188,7 +199,6 @@ if __name__ == "__main__":
     H_alpha_image = H_alpha_image[80:300, 50:200]
 
     # Ensure the output folder exists
-    folder_path = r"C:\Users\AYSAN\Desktop\project\Trash"
     os.makedirs(folder_path, exist_ok=True)
 
     # Call the function and retrieve sums per contour
@@ -209,9 +219,9 @@ if __name__ == "__main__":
         print(f"  Number of Pixels: {contour_info['num_pixels']}")
         print(f"  Mean Pixel Value: {contour_info['mean_pixel_value']}")
         print(f"  Max Pixel Value: {contour_info['max_pixel']}")
-
+        print(f"  Min Pixel Value: {contour_info['min_pixel']}")
 
     # Additionally, print the sum of values inside each mask
-    print("Sum of values inside each mask:")
+    print("\nSum of values inside each mask:")
     for contour_info in sums:
         print(f"Contour Level {contour_info['level']}: Sum = {contour_info['sum']}")
