@@ -21,6 +21,7 @@ def V_and_Halpha_alignment_interactive(
 
     # Open FITS files and get data
     V_image = ltf.open_fits(image1_path)
+    
     H_image = ltf.open_fits(image2_path)
 
     # Interactive point selection with magnifier
@@ -255,10 +256,10 @@ def V_and_Halpha_alignment(
 
     # Save the cropped images as new FITS files without headers
     V_image_cropped_path = os.path.join(
-        output_dir, f"cropped_{galaxy_name}_V.fits"
+        output_dir, f"cropped_{galaxy_name}_V (test).fits"
     )
     aligned_H_image_cropped_path = os.path.join(
-        output_dir, f"cropped_{galaxy_name}_H.fits"
+        output_dir, f"cropped_{galaxy_name}_H (test).fits"
     )
     fits.writeto(
         V_image_cropped_path, V_image_cropped.astype(np.float32), overwrite=True
@@ -299,18 +300,18 @@ def V_and_Halpha_alignment(
 # Main code
 if __name__ == "__main__":
     # Load the data
-    galaxy_name = "WLM"
+    galaxy_name = "DDO 87"
 
     # Paths to the images
-    V_image_path_star = r"C:\Users\AYSAN\Desktop\project\Galaxy\Data\WLM\wlmv.fits" #location to the V-filter image (with stars)
-    H_image_path_star = r"C:\Users\AYSAN\Desktop\project\Galaxy\Data\WLM\wlmha.fits"#location to the H-alpha-filter image (with stars)
+    V_image_path_star = r"C:\Users\AYSAN\Desktop\project\Galaxy\Data\DDO 87\d87v.fits" #location to the V-filter image (with stars)
+    H_image_path_star = r"C:\Users\AYSAN\Desktop\project\Galaxy\Data\DDO 87\d87ha.fits"#location to the H-alpha-filter image (with stars)
 
-    output_dir_no_stars = r"C:\Users\AYSAN\Desktop\project\Galaxy\Code\WLM" #location to where your starless cropped and resized images are saved.
-    output_dir_stars = r"C:\Users\AYSAN\Desktop\project\Galaxy\Code\WLM\withstar"#location to where your cropped and resized images are saved (withstars).
-    folder_path = r"C:\Users\AYSAN\Desktop\project\Galaxy\H-alpha regions"#location to where the final plots are saved.
+    output_dir_no_stars = r"C:\Users\AYSAN\Desktop\project\Galaxy\Code\d87" #location to where your starless cropped and resized images are saved.
+    output_dir_stars = r"C:\Users\AYSAN\Desktop\project\Galaxy\Code\d87"#location to where your cropped and resized images are saved (withstars).
+    folder_path = r"C:\Users\AYSAN\Desktop\project\Galaxy\Junk"#location to where the final plots are saved.
     # Paths to the starless images
-    V_image_path_starless = r"C:\Users\AYSAN\Desktop\project\Galaxy\Starless images\WLM\final_wLMv.fits"#location to the starless V-filter image
-    H_image_path_starless = r"C:\Users\AYSAN\Desktop\project\Galaxy\Data\WLM\wlmhmrms.fits"#location to the starless H-alpha-filter image
+    V_image_path_starless = r"C:\Users\AYSAN\Desktop\project\Galaxy\Starless images\DDO 87\final_d87v.fits"#location to the starless V-filter image
+    H_image_path_starless = r"C:\Users\AYSAN\Desktop\project\Galaxy\Data\DDO 87\d87hmrms.fits"#location to the starless H-alpha-filter image
 
     # Load H-alpha image and plot in log scale
     DDO168_H = ltf.open_fits(H_image_path_star)
@@ -345,6 +346,6 @@ if __name__ == "__main__":
         H_image_cropped,
         r"C:\Users\AYSAN\Desktop\project\Galaxy\H-alpha regions", contour_levels=[4,6,8,10])
 
-    H_pixelscale = ltf.calculate_pixelscale(star_coords_V, star_coords_H, 1.134) #enter V-filter pixel scale. 
-    print("H-alpha pixelscale:", H_pixelscale)
+    #H_pixelscale = ltf.calculate_pixelscale(star_coords_V, star_coords_H, 1.134) #enter V-filter pixel scale. 
+    #print("H-alpha pixelscale:", H_pixelscale)
 
