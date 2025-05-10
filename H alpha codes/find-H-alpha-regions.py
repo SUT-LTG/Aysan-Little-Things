@@ -10,8 +10,8 @@ from matplotlib.widgets import RectangleSelector, Button
 # ---------------------------
 # Build the list of image sets
 # ---------------------------
-folder1 = r"C:\Users\AYSAN\Desktop\project\Galaxy\H-alpha images raw starless"  # FITS starless images
-folder2 = r"C:\Users\AYSAN\Desktop\project\Galaxy\H-alpha images with star"       # FITS images with star
+folder1 = r"C:\Users\AYSAN\Desktop\project\Galaxy\H-alpha length\Cropped H-alpha"  # FITS starless images
+folder2 = r"C:\Users\AYSAN\Desktop\project\Galaxy\H-alpha length\H with Stars"    # FITS images with star
 folder3 = r"C:\Users\AYSAN\Desktop\project\Galaxy\H-alpha regions\Regions"  # PNG files
 
 # Get lists of files in each folder
@@ -76,7 +76,7 @@ selected_coords = None     # To hold the current rectangle selection (x_min, x_m
 rect_selector = None       # Global reference to the RectangleSelector
 
 # CSV file output path
-csv_file_path = r"C:\Users\AYSAN\Desktop\project\Galaxy\H-alpha regions\H-alpha crop.csv"
+csv_file_path = r"C:\Users\AYSAN\Desktop\project\Galaxy\H-alpha regions\H-alpha crop for cropped images.csv"
 
 # ---------------------------
 # Callback for rectangle selection on the first axis
@@ -121,7 +121,7 @@ def update_figure():
     norm2 = ImageNormalize(vmin=vmin2, vmax=vmax2)
 
     # Plot the three images
-    axs[0].imshow(data1, origin="lower", norm=norm1, aspect='auto')
+    axs[0].imshow(data1, origin="lower", norm=norm1, aspect='auto', cmap = "Greys_r")
     axs[0].set_title(curr_set['file1_title'])
     axs[0].set_box_aspect(1)
 
