@@ -24,11 +24,11 @@ def load_fits_image(file_path):
     return image_data
 
 # Specify the path to your FITS file.
-fits_file_path = r"C:\Users\AYSAN\Desktop\project\Galaxy\Code\d87\cropped_DDO 87_H.fits"
+fits_file_path = r"C:\Users\AYSAN\Desktop\project\Galaxy\Data\DDO 133\d133hmrms.fits"
 
 # Load the full image and then select a region of interest.
 image = load_fits_image(fits_file_path)
-image_section = image[40:250, 30:-30]
+image_section = image[0:778, 150: 750]
 
 # Optionally, check the image using your log scale plot (if desired)
 # ltf.log_scale_plot(image_section, "DDO 87 H-alpha plot (selected portion)", "log scale")
@@ -110,7 +110,7 @@ import random
 # -----------------------------
 # Show 10 Randomly Filtered Images in a Grid
 # -----------------------------
-def show_random_filtered_images(image_section, params_list, threshold, num_images=20):
+def show_random_filtered_images(image_section, params_list, threshold, num_images=4):
     # Select 10 random parameter combinations from the params_list
     random_params = random.sample(params_list, num_images)
     
@@ -123,13 +123,19 @@ def show_random_filtered_images(image_section, params_list, threshold, num_image
         # Create a mask: set any pixel value less than the threshold to NaN
         masked = np.where(filtered < threshold, np.nan, filtered)
         
-        plt.subplot(4, 5, i)  # Create a grid with 2 rows and 5 columns
+        plt.subplot(2, 2, i)  # Create a grid with 2 rows and 5 columns
         plt.imshow(masked, cmap='gray', interpolation='none')
         plt.title(f"h={h:.2f}, p={patch}, d={distance}")
-        plt.axis('off')
+        
+        # Add x and y labels and keep the axis ticks
+        plt.xlabel("Pixels")
+        plt.ylabel("Pixels")
+        plt.xticks(fontsize=8)
+        plt.yticks(fontsize=8)
     
     plt.tight_layout()
     plt.show()
+
 
 # Call the function with your image section and parameters
 show_random_filtered_images(image_section, params_list, threshold)
